@@ -12,11 +12,13 @@ const utils = require("./utils");
 const TAKER_FEE = 0.0022;
 
 describe("swap", () => {
-  // Configure the client to use the local cluster.
-  anchor.setProvider(anchor.Provider.env());
-
+  // Configure the client to use the local cluster
+  anchor.setProvider(anchor.AnchorProvider.local());
   // Swap program client.
   const program = anchor.workspace.SerumSwap;
+  console.log(program);
+  // console.log(program);
+  // console.log("provider",program.provider);
 
   // Accounts used to setup the orderbook.
   let ORDERBOOK_ENV,
@@ -32,6 +34,8 @@ describe("swap", () => {
   // Open orders accounts on the two markets for the provider.
   const openOrdersA = new anchor.web3.Account();
   const openOrdersB = new anchor.web3.Account();
+
+  console.log(program.provider.publicKey);
 
   it("BOILERPLATE: Sets up two markets with resting orders", async () => {
     ORDERBOOK_ENV = await utils.setupTwoMarkets({
@@ -212,6 +216,8 @@ describe("swap", () => {
     );
 
     // Send it.
+
+    
     await program.provider.send(tx, [openOrders]);
 
     // Balance after the transaction.

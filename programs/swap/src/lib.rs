@@ -16,12 +16,12 @@ use anchor_spl::token;
 use solana_program::declare_id;
 use std::num::NonZeroU64;
 
-declare_id!("22Y43yTVxuUkoRKdm9thyRhQ3SdgQS7c7kB6UNCiaczD");
+declare_id!("BVCvLvqHbSsTZmaydjJhKAbvNrELdnaxipDk99SacFpt");
 
 // Associated token account for Pubkey::default.
 mod empty {
     use super::*;
-    declare_id!("HJt8Tjdsc9ms9i4WCZEzhzr4oyf3ANcdzXrNdLPFqm3M");
+    declare_id!("BVCvLvqHbSsTZmaydjJhKAbvNrELdnaxipDk99SacFpt");
 }
 
 #[program]
@@ -326,11 +326,16 @@ fn apply_risk_checks(event: DidSwap) -> Result<()> {
 #[derive(Accounts)]
 pub struct InitAccount<'info> {
     #[account(mut)]
+     /// CHECK: This is not dangerous because we don't read or write from this account
     open_orders: AccountInfo<'info>,
     #[account(signer)]
+     /// CHECK: This is not dangerous because we don't read or write from this account
     authority: AccountInfo<'info>,
+     /// CHECK: This is not dangerous because we don't read or write from this account
     market: AccountInfo<'info>,
+     /// CHECK: This is not dangerous because we don't read or write from this account
     dex_program: AccountInfo<'info>,
+     /// CHECK: This is not dangerous because we don't read or write from this account
     rent: AccountInfo<'info>,
 }
 
@@ -348,12 +353,17 @@ impl<'info> From<&mut InitAccount<'info>> for dex::InitOpenOrders<'info> {
 #[derive(Accounts)]
 pub struct CloseAccount<'info> {
     #[account(mut)]
+     /// CHECK: This is not dangerous because we don't read or write from this account
     open_orders: AccountInfo<'info>,
     #[account(signer)]
+     /// CHECK: This is not dangerous because we don't read or write from this account
     authority: AccountInfo<'info>,
     #[account(mut)]
+     /// CHECK: This is not dangerous because we don't read or write from this account
     destination: AccountInfo<'info>,
+     /// CHECK: This is not dangerous because we don't read or write from this account
     market: AccountInfo<'info>,
+     /// CHECK: This is not dangerous because we don't read or write from this account
     dex_program: AccountInfo<'info>,
 }
 
@@ -375,13 +385,18 @@ impl<'info> From<&mut CloseAccount<'info>> for dex::CloseOpenOrders<'info> {
 pub struct Swap<'info> {
     pub market: MarketAccounts<'info>,
     #[account(signer)]
+     /// CHECK: This is not dangerous because we don't read or write from this account
     pub authority: AccountInfo<'info>,
     #[account(mut, constraint = pc_wallet.key != &empty::ID)]
+     /// CHECK: This is not dangerous because we don't read or write from this account
     pub pc_wallet: AccountInfo<'info>,
     // Programs.
+     /// CHECK: This is not dangerous because we don't read or write from this account
     pub dex_program: AccountInfo<'info>,
+     /// CHECK: This is not dangerous because we don't read or write from this account
     pub token_program: AccountInfo<'info>,
     // Sysvars.
+     /// CHECK: This is not dangerous because we don't read or write from this account
     pub rent: AccountInfo<'info>,
 }
 
@@ -408,13 +423,18 @@ pub struct SwapTransitive<'info> {
     pub to: MarketAccounts<'info>,
     // Must be the authority over all open orders accounts used.
     #[account(signer)]
+     /// CHECK: This is not dangerous because we don't read or write from this account
     pub authority: AccountInfo<'info>,
     #[account(mut, constraint = pc_wallet.key != &empty::ID)]
+     /// CHECK: This is not dangerous because we don't read or write from this account
     pub pc_wallet: AccountInfo<'info>,
     // Programs.
+     /// CHECK: This is not dangerous because we don't read or write from this account
     pub dex_program: AccountInfo<'info>,
+     /// CHECK: This is not dangerous because we don't read or write from this account
     pub token_program: AccountInfo<'info>,
     // Sysvars.
+     /// CHECK: This is not dangerous because we don't read or write from this account
     pub rent: AccountInfo<'info>,
 }
 
@@ -422,6 +442,7 @@ impl<'info> SwapTransitive<'info> {
     fn orderbook_from(&self) -> OrderbookClient<'info> {
         OrderbookClient {
             market: self.from.clone(),
+             /// CHECK: This is not dangerous because we don't read or write from this account
             authority: self.authority.clone(),
             pc_wallet: self.pc_wallet.clone(),
             dex_program: self.dex_program.clone(),
@@ -445,10 +466,15 @@ impl<'info> SwapTransitive<'info> {
 #[derive(Clone)]
 struct OrderbookClient<'info> {
     market: MarketAccounts<'info>,
+     /// CHECK: This is not dangerous because we don't read or write from this account
     authority: AccountInfo<'info>,
+     /// CHECK: This is not dangerous because we don't read or write from this account
     pc_wallet: AccountInfo<'info>,
+     /// CHECK: This is not dangerous because we don't read or write from this account
     dex_program: AccountInfo<'info>,
+     /// CHECK: This is not dangerous because we don't read or write from this account
     token_program: AccountInfo<'info>,
+     /// CHECK: This is not dangerous because we don't read or write from this account
     rent: AccountInfo<'info>,
 }
 
@@ -590,35 +616,46 @@ fn coin_lots(market: &MarketState, size: u64) -> u64 {
 #[derive(Accounts, Clone)]
 pub struct MarketAccounts<'info> {
     #[account(mut)]
+     /// CHECK: This is not dangerous because we don't read or write from this account
     pub market: AccountInfo<'info>,
     #[account(mut)]
+     /// CHECK: This is not dangerous because we don't read or write from this account
     pub open_orders: AccountInfo<'info>,
     #[account(mut)]
+     /// CHECK: This is not dangerous because we don't read or write from this account
     pub request_queue: AccountInfo<'info>,
     #[account(mut)]
+     /// CHECK: This is not dangerous because we don't read or write from this account
     pub event_queue: AccountInfo<'info>,
     #[account(mut)]
+     /// CHECK: This is not dangerous because we don't read or write from this account
     pub bids: AccountInfo<'info>,
     #[account(mut)]
+     /// CHECK: This is not dangerous because we don't read or write from this account
     pub asks: AccountInfo<'info>,
     // The `spl_token::Account` that funds will be taken from, i.e., transferred
     // from the user into the market's vault.
     //
     // For bids, this is the base currency. For asks, the quote.
     #[account(mut, constraint = order_payer_token_account.key != &empty::ID)]
+     /// CHECK: This is not dangerous because we don't read or write from this account
     pub order_payer_token_account: AccountInfo<'info>,
     // Also known as the "base" currency. For a given A/B market,
     // this is the vault for the A mint.
     #[account(mut)]
+     /// CHECK: This is not dangerous because we don't read or write from this account
     pub coin_vault: AccountInfo<'info>,
     // Also known as the "quote" currency. For a given A/B market,
     // this is the vault for the B mint.
     #[account(mut)]
+     /// CHECK: This is not dangerous because we don't read or write from this account
     pub pc_vault: AccountInfo<'info>,
     // PDA owner of the DEX's token accounts for base + quote currencies.
+     /// CHECK: This is not dangerous because we don't read or write from this account
     pub vault_signer: AccountInfo<'info>,
     // User wallets.
     #[account(mut, constraint = coin_wallet.key != &empty::ID)]
+     /// CHECK: This is not dangerous because we don't read or write from this account
     pub coin_wallet: AccountInfo<'info>,
 }
 

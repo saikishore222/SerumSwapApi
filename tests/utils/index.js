@@ -12,15 +12,20 @@ const DexInstructions = require("@project-serum/serum").DexInstructions;
 const web3 = require("@project-serum/anchor").web3;
 const Connection = web3.Connection;
 const BN = require("@project-serum/anchor").BN;
+const { publicKey } = require("@project-serum/anchor/dist/cjs/utils");
 const serumCmn = require("@project-serum/common");
 const Account = web3.Account;
 const Transaction = web3.Transaction;
 const PublicKey = web3.PublicKey;
 const SystemProgram = web3.SystemProgram;
-const DEX_PID = new PublicKey("9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin");
+const DEX_PID = new PublicKey("DESVgJVGajEgKGXhb6XmqDHGz3VjdgP7rEVESBgxmroY");
 
 async function setupTwoMarkets({ provider }) {
   // Setup mints with initial tokens owned by the provider.
+  // console.log("kishore");
+  // console.log(publicKey);
+  // console.log("HelloWorld");
+  console.log(provider);
   const decimals = 6;
   const [MINT_A, GOD_A] = await serumCmn.createMintAndVault(
     provider,
@@ -196,7 +201,7 @@ async function fundAccount({ provider, mints }) {
   };
 
   // Transfer lamports to market maker.
-  await provider.send(
+  await provider.connection.sendTransaction(
     (() => {
       const tx = new Transaction();
       tx.add(
@@ -207,7 +212,7 @@ async function fundAccount({ provider, mints }) {
         })
       );
       return tx;
-    })()
+    })(), [provider.wallet]
   );
 
   // Transfer SPL tokens to the market maker.
@@ -226,7 +231,7 @@ async function fundAccount({ provider, mints }) {
       MARKET_MAKER.publicKey
     );
 
-    await provider.send(
+    await provider.connection.sendTransaction(
       (() => {
         const tx = new Transaction();
         tx.add(
@@ -242,7 +247,7 @@ async function fundAccount({ provider, mints }) {
           )
         );
         return tx;
-      })()
+      })(), [provider.wallet]
     );
 
     marketMaker.tokens[mint.toString()] = marketMakerTokenA;
@@ -293,7 +298,7 @@ async function setupMarket({
       feeDiscountPubkey: null,
       selfTradeBehavior: "abortTransaction",
     });
-    await provider.send(transaction, signers.concat(marketMaker.account));
+    await provider.connection.sendTransaction(transaction, signers.concat(marketMaker.account));
   }
 
   for (let k = 0; k < bids.length; k += 1) {
@@ -314,7 +319,7 @@ async function setupMarket({
       feeDiscountPubkey: null,
       selfTradeBehavior: "abortTransaction",
     });
-    await provider.send(transaction, signers.concat(marketMaker.account));
+    await provider.connection.sendTransaction(transaction, signers.concat(marketMaker.account));
   }
 
   return MARKET_A_USDC;
